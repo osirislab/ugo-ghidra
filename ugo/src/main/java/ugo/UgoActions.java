@@ -5,6 +5,7 @@ import com.google.inject.Inject;
 import docking.action.DockingAction;
 import ghidra.framework.plugintool.PluginTool;
 import ugo.actions.UgoProcessAction;
+import ugo.actions.UgoSymbolicateAction;
 
 import java.util.Set;
 
@@ -16,10 +17,12 @@ public class UgoActions {
 
     @Inject
     public UgoActions(PluginTool tool,
-                      UgoProcessAction ugoProcessAction) {
+                      UgoProcessAction ugoProcessAction,
+                      UgoSymbolicateAction ugoSymbolicateAction) {
         this.pluginTool = tool;
         dockingActions = ImmutableSet.of(
-            ugoProcessAction
+                ugoProcessAction,
+                ugoSymbolicateAction
         );
     }
 
