@@ -1,11 +1,21 @@
 package ugo.symbolication;
 
 import com.google.inject.Inject;
+import ghidra.program.model.listing.Program;
+import ghidra.program.model.symbol.SymbolTable;
 
 public class UgoSymbolicator {
 
     @Inject
     public UgoSymbolicator() {
+
+    }
+
+    public void SymbolicateProgram(Program program) {
+        SymbolTable symbolTable = program.getSymbolTable();
+
+
+
 
     }
 

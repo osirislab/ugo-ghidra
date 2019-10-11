@@ -38,7 +38,7 @@ else if (project.hasProperty("GHIDRA_INSTALL_DIR")) {
     ghidraInstallDir = project.getProperty("GHIDRA_INSTALL_DIR")
 }
 
-ghidraInstallDir = "/Users/pa_ssion/apps/ghidra_9.0.4"
+ghidraInstallDir = "/Users/pa_ssion/apps/ghidra_9.1-BETA_DEV"
 
 if (ghidraInstallDir) {
     apply from: new File(ghidraInstallDir).getCanonicalPath() + "/support/buildExtension.gradle"

@@ -13,7 +13,7 @@ import java.awt.event.KeyEvent;
 
 public class UgoProcessAction extends DockingAction {
     private static final String MENU_ITEM = "UGO_PROCESS_ACTION";
-    private static final String[] MENU_PATH = new String[]{ "&Ugo", "Process" };
+    private static final String[] MENU_PATH = new String[]{ "&Analysis", "Ugo", "Process" };
     private static final MenuData menuData = new MenuData(MENU_PATH);
     private static final KeyBindingData keyBindingData = new KeyBindingData(KeyEvent.VK_AMPERSAND, KeyEvent.VK_SHIFT);
 
