@@ -26,7 +26,6 @@ import docking.widgets.fieldpanel.support.FieldLocation;
 import docking.widgets.fieldpanel.support.HighlightFactory;
 import docking.widgets.fieldpanel.support.RowColLocation;
 import ghidra.app.decompiler.ClangToken;
-import ghidra.app.decompiler.component.ClangFieldElement;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,7 +71,7 @@ public class UgoClangTextField extends WrappingVerticalLayoutTextField {
     }
 
     public UgoClangTextField(List<ClangToken> tokenList, FieldElement[] fieldElements,
-                          FieldElement lineNumberFieldElement, int x, int width, HighlightFactory hlFactory) {
+                             FieldElement lineNumberFieldElement, int x, int width, HighlightFactory hlFactory) {
         super(createSingleLineElement(fieldElements),
                 calculateXPositionWithLineNumberOffset(x, lineNumberFieldElement),
                 calculateWidthFromXPosition(x, lineNumberFieldElement, width), 30, hlFactory);

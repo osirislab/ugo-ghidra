@@ -15,24 +15,28 @@
  */
 package ugo.actions;
 
-import java.util.List;
-
 import docking.action.MenuData;
 import ghidra.app.decompiler.ClangFuncNameToken;
 import ghidra.app.decompiler.ClangToken;
-import ghidra.app.decompiler.component.*;
+import ghidra.app.decompiler.component.DecompilerUtils;
 import ghidra.app.plugin.core.decompile.DecompilerActionContext;
-import ghidra.app.plugin.core.decompile.actions.AbstractDecompilerAction;
-import ghidra.app.plugin.core.function.editor.*;
+import ghidra.app.plugin.core.function.editor.FunctionEditorDialog;
+import ghidra.app.plugin.core.function.editor.FunctionEditorModel;
+import ghidra.app.plugin.core.function.editor.ParamInfo;
 import ghidra.app.services.DataTypeManagerService;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.program.model.data.*;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.VariableStorage;
-import ghidra.program.model.pcode.*;
+import ghidra.program.model.pcode.FunctionPrototype;
+import ghidra.program.model.pcode.HighFunction;
+import ghidra.program.model.pcode.HighParam;
 import ghidra.program.model.symbol.SourceType;
 import ghidra.util.UndefinedFunction;
 import ugo.UgoDecompilerController;
+import ugo.UgoDecompilerPanel;
+
+import java.util.List;
 
 public class UgoSpecifyCPrototypeAction extends UgoAbstractDecompilerAction {
     private final UgoDecompilerController controller;
@@ -42,13 +46,14 @@ public class UgoSpecifyCPrototypeAction extends UgoAbstractDecompilerAction {
         super("Edit Function Signature");
         this.tool = tool;
         this.controller = controller;
-        setPopupMenuData(new MenuData(new String[] { "Edit Function Signature" }, "Decompile"));
+        setPopupMenuData(new MenuData(new String[]{"Edit Function Signature"}, "Decompile"));
     }
 
     /**
      * Verify and adjust function editor model using dynamic storage to reflect current state of
      * decompiled results.  It may be necessary to switch model to use custom storage.
-     * @param hf decompiled high function
+     *
+     * @param hf    decompiled high function
      * @param model function editor model
      */
     private void verifyDynamicEditorModel(HighFunction hf, FunctionEditorModel model) {
@@ -68,8 +73,7 @@ public class UgoSpecifyCPrototypeAction extends UgoAbstractDecompilerAction {
         for (int i = 0; i < autoParamCnt && !useCustom; i++) {
             if (i >= decompParamCnt) {
                 useCustom = true;
-            }
-            else {
+            } else {
                 VariableStorage modelParamStorage = parameters.get(i).getStorage();
                 VariableStorage decompParamStorage = functionPrototype.getParam(i).getStorage();
                 if (!modelParamStorage.equals(decompParamStorage)) {
@@ -81,7 +85,7 @@ public class UgoSpecifyCPrototypeAction extends UgoAbstractDecompilerAction {
         if (!useCustom) {
             // remove original params which replicate auto params
             for (int i = 0; i < autoParamCnt; i++) {
-                model.setSelectedParameterRow(new int[] { autoParamCnt });
+                model.setSelectedParameterRow(new int[]{autoParamCnt});
                 model.removeParameters();
             }
 
@@ -135,12 +139,12 @@ public class UgoSpecifyCPrototypeAction extends UgoAbstractDecompilerAction {
 
     /**
      * @return the currently highlighted function or the currently decompiled
-     *         function if there isn't one.
+     * function if there isn't one.
      */
     synchronized Function getFunction() {
         // try to look up the function that is at the current cursor location
         //   If there isn't one, just use the function we are in.
-        DecompilerPanel decompilerPanel = controller.getDecompilerPanel();
+        UgoDecompilerPanel decompilerPanel = controller.getDecompilerPanel();
         ClangToken tokenAtCursor = decompilerPanel.getTokenAtCursor();
         Function function = controller.getFunction();
         if (tokenAtCursor instanceof ClangFuncNameToken) {
@@ -181,8 +185,7 @@ public class UgoSpecifyCPrototypeAction extends UgoAbstractDecompilerAction {
                 model.setCallingConventionName(functionPrototype.getModelName());
                 model.setFunctionData(buildSignature(hf));
                 verifyDynamicEditorModel(hf, model);
-            }
-            else if (function.getReturnType() == DataType.DEFAULT) {
+            } else if (function.getReturnType() == DataType.DEFAULT) {
                 model.setFormalReturnType(functionPrototype.getReturnType());
                 if (model.canCustomizeStorage()) {
                     model.setReturnStorage(functionPrototype.getReturnStorage());

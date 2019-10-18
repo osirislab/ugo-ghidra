@@ -24,8 +24,6 @@ import docking.widgets.fieldpanel.support.FieldRange;
 import docking.widgets.fieldpanel.support.FieldSelection;
 import ghidra.app.decompiler.ClangToken;
 import ghidra.app.decompiler.component.ClangTextField;
-import ghidra.app.decompiler.component.DecompilerPanel;
-import ghidra.app.plugin.core.decompile.DecompilerProvider;
 import ghidra.app.services.ClipboardContentProviderService;
 import ghidra.app.util.ByteCopier;
 import ghidra.app.util.ClipboardType;
@@ -95,7 +93,7 @@ public class UgoDecompilerClipboardProvider extends ByteCopier
     }
 
     private String getCursorText() {
-        DecompilerPanel panel = provider.getDecompilerPanel();
+        UgoDecompilerPanel panel = provider.getDecompilerPanel();
         ClangToken token = panel.getTokenAtCursor();
         if (token == null) {
             return null;

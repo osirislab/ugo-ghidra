@@ -16,17 +16,15 @@ package ugo;
  * limitations under the License.
  */
 
-import java.util.function.Supplier;
-
 import docking.ActionContext;
 import docking.action.DockingActionIf;
 import ghidra.app.context.NavigatableActionContext;
 import ghidra.app.context.RestrictedAddressSetContext;
-import ghidra.app.decompiler.component.DecompilerPanel;
-import ghidra.app.plugin.core.decompile.DecompilerProvider;
 import ghidra.program.model.address.Address;
 import ghidra.util.Msg;
 import utility.function.Callback;
+
+import java.util.function.Supplier;
 
 public class UgoDecompilerActionContext extends NavigatableActionContext
         implements RestrictedAddressSetContext {
@@ -34,7 +32,7 @@ public class UgoDecompilerActionContext extends NavigatableActionContext
     private final boolean isDecompiling;
 
     public UgoDecompilerActionContext(UgoDecompilerProvider provider, Address functionEntryPoint,
-                                   boolean isDecompiling) {
+                                      boolean isDecompiling) {
         super(provider, provider);
         this.functionEntryPoint = functionEntryPoint;
         this.isDecompiling = isDecompiling;
@@ -53,7 +51,7 @@ public class UgoDecompilerActionContext extends NavigatableActionContext
         return (UgoDecompilerProvider) super.getComponentProvider();
     }
 
-    public DecompilerPanel getDecompilerPanel() {
+    public UgoDecompilerPanel getDecompilerPanel() {
         return getComponentProvider().getDecompilerPanel();
     }
 

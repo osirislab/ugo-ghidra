@@ -16,38 +16,40 @@ package ugo;
  * limitations under the License.
  */
 
-import java.awt.*;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.regex.*;
-
-import javax.swing.JComponent;
-
-import ghidra.app.decompiler.component.ClangFieldElement;
-import ghidra.app.decompiler.component.ClangTextField;
-import ghidra.app.decompiler.component.DecompilerPanel;
-import org.apache.commons.lang3.StringUtils;
-
 import docking.widgets.SearchLocation;
 import docking.widgets.fieldpanel.Layout;
 import docking.widgets.fieldpanel.LayoutModel;
-import docking.widgets.fieldpanel.field.*;
+import docking.widgets.fieldpanel.field.AttributedString;
+import docking.widgets.fieldpanel.field.Field;
+import docking.widgets.fieldpanel.field.FieldElement;
 import docking.widgets.fieldpanel.listener.IndexMapper;
 import docking.widgets.fieldpanel.listener.LayoutModelListener;
-import docking.widgets.fieldpanel.support.*;
+import docking.widgets.fieldpanel.support.FieldLocation;
+import docking.widgets.fieldpanel.support.HighlightFactory;
+import docking.widgets.fieldpanel.support.RowColLocation;
+import docking.widgets.fieldpanel.support.SingleRowLayout;
 import ghidra.app.decompiler.*;
+import ghidra.app.decompiler.component.ClangFieldElement;
+import ghidra.app.decompiler.component.ClangTextField;
 import ghidra.app.plugin.core.decompile.actions.FieldBasedSearchLocation;
 import ghidra.app.util.viewer.field.CommentUtils;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.model.pcode.HighFunction;
 import ghidra.util.Msg;
+import org.apache.commons.lang3.StringUtils;
+
+import javax.swing.*;
+import java.awt.*;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
- *
- *
  * Control the GUI layout for displaying tokenized C code
  */
 public class UgoClangLayoutController implements LayoutModel, LayoutModelListener {
@@ -77,7 +79,7 @@ public class UgoClangLayoutController implements LayoutModel, LayoutModelListene
     }
 
     public UgoClangLayoutController(DecompileOptions opt, UgoDecompilerPanel decompilerPanel,
-                                 FontMetrics met, HighlightFactory hlFactory) {
+                                    FontMetrics met, HighlightFactory hlFactory) {
         options = opt;
         this.decompilerPanel = decompilerPanel;
         syntax_color = new Color[9];
@@ -215,7 +217,7 @@ public class UgoClangLayoutController implements LayoutModel, LayoutModelListene
         Program program = decompilerPanel.getProgram();
         FieldElement element = CommentUtils.parseTextForAnnotations(text, program, prototype, 0);
 
-        FieldElement[] elements = new FieldElement[] { element };
+        FieldElement[] elements = new FieldElement[]{element};
         ClangCommentToken newCommentToken = ClangCommentToken.derive(token, text);
         List<ClangToken> newTokens = Arrays.asList(newCommentToken);
 
@@ -328,8 +330,7 @@ public class UgoClangLayoutController implements LayoutModel, LayoutModelListene
         int maxchar;
         if ((maxWidth == 0) || (indentWidth == 0)) {
             maxchar = 40;
-        }
-        else {
+        } else {
             maxchar = maxWidth / indentWidth;
         }
         String[] toklist = line.split("[ \t]+");
@@ -353,8 +354,7 @@ public class UgoClangLayoutController implements LayoutModel, LayoutModelListene
                 atleastone = false;
                 buf = new StringBuffer();
                 buf.append("     ");
-            }
-            else {
+            } else {
                 buf.append(' ');
                 buf.append(toklist[i]);
                 cursize += toklist[i].length() + 1;
@@ -473,8 +473,7 @@ public class UgoClangLayoutController implements LayoutModel, LayoutModelListene
         Pattern pattern = null;
         try {
             pattern = Pattern.compile(searchString, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-        }
-        catch (PatternSyntaxException e) {
+        } catch (PatternSyntaxException e) {
             Msg.showError(this, decompilerPanel, "Regular Expression Syntax Error", e.getMessage());
             return null;
         }
@@ -577,7 +576,7 @@ public class UgoClangLayoutController implements LayoutModel, LayoutModelListene
     }
 
     private FieldNumberColumnPair getFieldIndexFromOffset(int screenOffset,
-                                                                                                                ClangTextField textField) {
+                                                          ClangTextField textField) {
         RowColLocation rowColLocation = textField.textOffsetToScreenLocation(screenOffset);
 
         // we use 0 here because currently there is only one field, which is the entire line

@@ -34,13 +34,17 @@ import ghidra.app.decompiler.ClangLine;
 import ghidra.app.decompiler.ClangToken;
 import ghidra.app.decompiler.DecompileOptions;
 import ghidra.app.decompiler.DecompilerLocation;
-import ghidra.app.decompiler.component.*;
+import ghidra.app.decompiler.component.DecompileData;
+import ghidra.app.decompiler.component.DecompilerCallbackHandler;
+import ghidra.app.decompiler.component.DecompilerHighlightService;
 import ghidra.app.nav.DecoratorPanel;
 import ghidra.app.nav.LocationMemento;
 import ghidra.app.nav.Navigatable;
 import ghidra.app.plugin.core.decompile.DecompilerActionContext;
 import ghidra.app.plugin.core.decompile.DecompilerLocationMemento;
-import ghidra.app.plugin.core.decompile.actions.*;
+import ghidra.app.plugin.core.decompile.actions.EditPropertiesAction;
+import ghidra.app.plugin.core.decompile.actions.FindReferencesToAddressAction;
+import ghidra.app.plugin.core.decompile.actions.FindReferencesToSymbolAction;
 import ghidra.app.services.*;
 import ghidra.app.util.HighlightProvider;
 import ghidra.framework.model.DomainObjectChangedEvent;
@@ -114,9 +118,9 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
 
         decompilerOptions = new DecompileOptions();
         initializeDecompilerOptions();
-        ClangHighlightController highlightController = new LocationClangHighlightController();
+        UgoClangHighlightController highlightController = new UgoLocationClangHighlightController();
         controller = new UgoDecompilerController(this, decompilerOptions, clipboardProvider);
-        DecompilerPanel decompilerPanel = controller.getDecompilerPanel();
+        UgoDecompilerPanel decompilerPanel = controller.getDecompilerPanel();
         decompilerPanel.setHighlightController(highlightController);
         decorationPanel = new DecoratorPanel(decompilerPanel, isConnected);
 
@@ -431,7 +435,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
      */
     String currentTokenToString() {
 
-        DecompilerPanel decompilerPanel = controller.getDecompilerPanel();
+        UgoDecompilerPanel decompilerPanel = controller.getDecompilerPanel();
         FieldLocation cursor = decompilerPanel.getCursorPosition();
         List<ClangLine> lines = decompilerPanel.getLines();
         ClangLine line = lines.get(cursor.getRow());
@@ -449,7 +453,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
      */
     void setCursorLocation(int lineNumber, int offset) {
 
-        DecompilerPanel decompilerPanel = controller.getDecompilerPanel();
+        UgoDecompilerPanel decompilerPanel = controller.getDecompilerPanel();
         int row = lineNumber - 1; // 1-based number
         BigInteger index = BigInteger.valueOf(row);
         FieldLocation location = new FieldLocation(index, 0, 0, offset);
@@ -602,7 +606,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
 // methods called from other members
 //==================================================================================================
 
-    DecompilerPanel getDecompilerPanel() {
+    UgoDecompilerPanel getDecompilerPanel() {
         return controller.getDecompilerPanel();
     }
 
@@ -661,7 +665,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
     private void createActions(boolean isConnected) {
         String owner = plugin.getName();
 
-        SelectAllAction selectAllAction = new SelectAllAction(owner, controller.getDecompilerPanel());
+        UgoSelectAllAction selectAllAction = new UgoSelectAllAction(owner, controller.getDecompilerPanel());
 
         DockingAction refreshAction = new DockingAction("Refresh", owner) {
             @Override
@@ -759,10 +763,10 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
         String commitGroup = "3 - Commit Group";
         subGroupPosition = 0; // reset for the next group
 
-        DockingAction lockProtoAction = new CommitParamsAction(tool, controller);
+        DockingAction lockProtoAction = new UgoCommitParamsAction(tool, controller);
         setGroupInfo(lockProtoAction, commitGroup, subGroupPosition++);
 
-        DockingAction lockLocalAction = new CommitLocalsAction(tool, controller);
+        DockingAction lockLocalAction = new UgoCommitLocalsAction(tool, controller);
         setGroupInfo(lockLocalAction, commitGroup, subGroupPosition++);
 
         //
@@ -780,7 +784,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
         String searchGroup = "comment2 - Search Group";
         subGroupPosition = 0; // reset for the next group
 
-        DockingAction findAction = new FindAction(tool, controller);
+        DockingAction findAction = new UgoFindAction(tool, controller);
         setGroupInfo(findAction, searchGroup, subGroupPosition++);
 
         //
@@ -790,7 +794,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
         // note: set the menu group so that the 'References' group is with the 'Find' action
         String referencesParentGroup = searchGroup;
 
-        DockingAction findReferencesAction = new FindReferencesToDataTypeAction(owner, tool, controller);
+        DockingAction findReferencesAction = new UgoFindReferencesToDataTypeAction(owner, tool, controller);
         setGroupInfo(findReferencesAction, searchGroup, subGroupPosition++);
         findReferencesAction.getPopupMenuData().setParentMenuGroup(referencesParentGroup);
 
@@ -818,9 +822,9 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
         //
         // These actions are not in the popup menu
         //
-        DockingAction debugFunctionAction = new DebugDecompilerAction(controller);
-        DockingAction convertAction = new ExportToCAction(controller);
-        CloneDecompilerAction cloneDecompilerAction = new CloneDecompilerAction(this, controller);
+        DockingAction debugFunctionAction = new UgoDebugDecompilerAction(controller);
+        DockingAction convertAction = new UgoExportToCAction(controller);
+        UgoCloneDecompilerAction cloneDecompilerAction = new UgoCloneDecompilerAction(this, controller);
 
         addLocalAction(refreshAction);
         addLocalAction(selectAllAction);
@@ -869,7 +873,7 @@ public class UgoDecompilerProvider extends NavigatableComponentProviderAdapter
 
     private void graphServiceAdded() {
         if (graphASTControlFlowAction == null && tool.getService(GraphService.class) != null) {
-            graphASTControlFlowAction = new GraphASTControlFlowAction(plugin, controller);
+            graphASTControlFlowAction = new UgoGraphASTControlFlowAction(plugin, controller);
             addLocalAction(graphASTControlFlowAction);
         }
     }
