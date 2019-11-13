@@ -18,9 +18,13 @@ package ugo;
 import java.io.File;
 
 import ghidra.app.decompiler.*;
+import ghidra.program.model.lang.*;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.util.task.TaskMonitor;
+import ugo.lang.UgoDecompInterface;
+import ugo.lang.UgoDecompilerLanguage;
+import ugo.lang.UgoSleighLanguage;
 
 class UgoDecompiler {
 
@@ -45,7 +49,7 @@ class UgoDecompiler {
 
     DecompileResults decompile(Program program, Function function, File debugFile,
                                TaskMonitor monitor) throws DecompileException {
-        DecompInterface ifc = getDecompilerInterface(program);
+        DecompInterface ifc = getDecompilerInterface(program, monitor);
 
         if (debugFile != null) {
             ifc.enableDebug(debugFile);
@@ -65,16 +69,36 @@ class UgoDecompiler {
         }
     }
 
-    synchronized DecompInterface getDecompilerInterface(Program program) throws DecompileException {
+    synchronized DecompInterface getDecompilerInterface(Program program, TaskMonitor monitor) throws DecompileException {
         if (cachedDecompInterface != null) {
             if (cachedDecompInterface.getProgram() == program) {
                 return cachedDecompInterface;
             }
             cachedDecompInterface.dispose();
         }
-        DecompInterface newInterface = new DecompInterface();
+        DecompInterface newInterface = new UgoDecompInterface();
         newInterface.setOptions(options);
         optionsChanged = false;
+        try {
+            program.setLanguage(new UgoSleighLanguage(
+                    new SleighLanguageDescription(
+                            new LanguageID("golang"),
+                            "Go language",
+                            Processor.toProcessor("go"), // TODO: make and instantiate an instance of a Processor and then put it in
+                            Endian.LITTLE,
+                            Endian.LITTLE,
+                            4,
+                            "unknown",
+                            11, //TODO: parse this from file
+                            1, // TODO: parse this from file
+                            false,
+                            null,
+                            null,
+                            null
+                    )), new CompilerSpecID("go"), false, monitor);
+        } catch (Exception e) {
+
+        }
 //		newInterface.toggleSyntaxTree(false);
         if (!newInterface.openProgram(program)) {
             String errorMessage = newInterface.getLastMessage();

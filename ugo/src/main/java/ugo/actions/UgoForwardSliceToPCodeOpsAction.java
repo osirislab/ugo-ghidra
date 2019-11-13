@@ -59,7 +59,5 @@ public class UgoForwardSliceToPCodeOpsAction extends UgoAbstractDecompilerAction
                     decompilerPanel.getDefaultHighlightColor());
             decompilerPanel.repaint();
         }
-
     }
-
 }

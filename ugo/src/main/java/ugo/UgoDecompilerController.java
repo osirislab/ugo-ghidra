@@ -15,22 +15,26 @@
  */
 package ugo;
 
-import java.awt.event.MouseEvent;
-import java.io.File;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import docking.widgets.fieldpanel.support.ViewerPosition;
-import ghidra.app.decompiler.*;
-import ghidra.app.decompiler.component.*;
-import ghidra.app.plugin.core.decompile.DecompilerClipboardProvider;
+import ghidra.app.decompiler.ClangTokenGroup;
+import ghidra.app.decompiler.DecompileOptions;
+import ghidra.app.decompiler.DecompileResults;
+import ghidra.app.decompiler.component.DecompileData;
+import ghidra.app.decompiler.component.DecompilerCallbackHandler;
+import ghidra.app.decompiler.component.EmptyDecompileData;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.listing.*;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.FunctionManager;
+import ghidra.program.model.listing.Program;
 import ghidra.program.model.pcode.HighFunction;
 import ghidra.program.util.ProgramLocation;
 import ghidra.program.util.ProgramSelection;
 import ghidra.util.bean.field.AnnotatedTextFieldElement;
+
+import java.awt.event.MouseEvent;
+import java.io.File;
 
 /**
  * Coordinates the interactions between the DecompilerProvider, DecompilerPanel, and the DecompilerManager
@@ -46,7 +50,7 @@ public class UgoDecompilerController {
     private int cacheSize;
 
     public UgoDecompilerController(DecompilerCallbackHandler handler, DecompileOptions options,
-                                UgoDecompilerClipboardProvider clipboard) {
+                                   UgoDecompilerClipboardProvider clipboard) {
         this.cacheSize = options.getCacheSize();
         this.callbackHandler = handler;
         decompilerCache = buildCache();
@@ -65,6 +69,7 @@ public class UgoDecompilerController {
 //==================================================================================================
 //  Methods call by the provider
 //==================================================================================================
+
     /**
      * Called by the provider when the provider is disposed.  Once dispose is called, it should
      * never be used again.
@@ -91,9 +96,9 @@ public class UgoDecompilerController {
      * already displaying the function, then only the cursor is repositioned.  To force a
      * re-decompile use {@link #refreshDisplay(Program, ProgramLocation)}.
      *
-     * @param program the program for the given location
+     * @param program  the program for the given location
      * @param location the location containing the function to be displayed and the location in
-     * that function to position the cursor.
+     *                 that function to position the cursor.
      */
     public void display(Program program, ProgramLocation location, ViewerPosition viewerPosition) {
         if (!decompilerMgr.isBusy() && decompilerPanel.containsLocation(location)) {
@@ -136,6 +141,7 @@ public class UgoDecompilerController {
 
     /**
      * Sets new decompiler options and triggers a new decompile.
+     *
      * @param decompilerOptions
      */
     public void setOptions(DecompileOptions decompilerOptions) {
@@ -194,12 +200,14 @@ public class UgoDecompilerController {
 //==================================================================================================
 //  Methods called by actions and other miscellaneous classes
 //==================================================================================================
+
     /**
      * Always decompiles the function containing the given location before positioning the
      * decompilerPanel's cursor to the closest equivalent position.
-     * @param program the program for the given location
+     *
+     * @param program  the program for the given location
      * @param location the location containing the function to be displayed and the location in
-     * that function to position the cursor.
+     *                 that function to position the cursor.
      */
     public void refreshDisplay(Program program, ProgramLocation location, File debugFile) {
         clearCache();

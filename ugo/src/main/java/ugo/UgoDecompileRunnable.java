@@ -15,20 +15,22 @@
  */
 package ugo;
 
-import java.io.File;
-
 import docking.widgets.fieldpanel.support.ViewerPosition;
 import ghidra.app.decompiler.DecompileException;
 import ghidra.app.decompiler.DecompileResults;
 import ghidra.app.decompiler.component.DecompileData;
-import ghidra.app.decompiler.component.DecompilerManager;
 import ghidra.app.decompiler.component.EmptyDecompileData;
 import ghidra.program.model.address.Address;
-import ghidra.program.model.listing.*;
+import ghidra.program.model.listing.CodeUnit;
+import ghidra.program.model.listing.Data;
+import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.UndefinedFunction;
 import ghidra.util.task.SwingRunnable;
 import ghidra.util.task.TaskMonitor;
+
+import java.io.File;
 
 class UgoDecompileRunnable implements SwingRunnable {
     private volatile Function functionToDecompile;
@@ -43,12 +45,13 @@ class UgoDecompileRunnable implements SwingRunnable {
 
     /**
      * Constructor for a scheduled Decompile runnable
-     * @param program the program containing the function to be decompiled
-     * @param location the location for which to find its containing function.
+     *
+     * @param program   the program containing the function to be decompiled
+     * @param location  the location for which to find its containing function.
      * @param debugFile if non-null, the file to store decompile debug information.
      */
     public UgoDecompileRunnable(Program program, ProgramLocation location, File debugFile,
-                             ViewerPosition viewerPosition, UgoDecompilerManager decompilerManager) {
+                                ViewerPosition viewerPosition, UgoDecompilerManager decompilerManager) {
         this.program = program;
         this.location = location;
         this.debugFile = debugFile;
@@ -109,8 +112,7 @@ class UgoDecompileRunnable implements SwingRunnable {
         try {
             decompileResults =
                     decompilerManager.decompile(program, functionToDecompile, debugFile, monitor);
-        }
-        catch (DecompileException e) {
+        } catch (DecompileException e) {
             errorMessage = e.getMessage();
         }
 
@@ -125,8 +127,7 @@ class UgoDecompileRunnable implements SwingRunnable {
         if (isCancelled) {
             decompilerManager.setDecompileData(this,
                     new EmptyDecompileData("Decompile Cancelled."));
-        }
-        else {
+        } else {
             DecompileData decompileData = new DecompileData(program, functionToDecompile, location,
                     decompileResults, errorMessage, debugFile, viewerPosition);
             decompilerManager.setDecompileData(this, decompileData);
