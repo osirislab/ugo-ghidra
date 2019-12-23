@@ -18,13 +18,12 @@ package ugo;
 import java.io.File;
 
 import ghidra.app.decompiler.*;
+import ghidra.app.plugin.processors.sleigh.SleighLanguage;
 import ghidra.program.model.lang.*;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.util.task.TaskMonitor;
 import ugo.lang.UgoDecompInterface;
-import ugo.lang.UgoDecompilerLanguage;
-import ugo.lang.UgoSleighLanguage;
 
 class UgoDecompiler {
 
@@ -80,7 +79,7 @@ class UgoDecompiler {
         newInterface.setOptions(options);
         optionsChanged = false;
         try {
-            program.setLanguage(new UgoSleighLanguage(
+            program.setLanguage(new SleighLanguage(
                     new SleighLanguageDescription(
                             new LanguageID("golang"),
                             "Go language",

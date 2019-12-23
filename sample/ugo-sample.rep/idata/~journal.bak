@@ -1,0 +1,5 @@
+IADD:00000003:/sample_calls_with_returns
+IDSET:/sample_calls_with_returns:7f001ec1a319417129715699
+IDEL:/sample_calls_with_returns
+IADD:00000004:/sample_calls_2
+IDSET:/sample_calls_2:7f001f032319675430452794
